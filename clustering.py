@@ -6,7 +6,10 @@ from sklearn.cluster import KMeans
 
 DEPARTURE = False
 
-AIRPORT_ICAO = "ESSA"
+#AIRPORT_ICAO = "ESSA"
+#number_of_clusters = 6
+
+AIRPORT_ICAO = "ESGG"
 number_of_clusters = 6
 
 YEARS = ['2019', '2020']
@@ -18,9 +21,10 @@ MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'
 WEEKS = [1,2,3,4,5]
 #WEEKS = [1]
 
-#RUNWAYS = ['03', '21'] #ESGG
-RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
-#RUNWAYS = ['26', '19R', '19L']
+if AIRPORT_ICAO == "ESSA":
+    RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
+elif AIRPORT_ICAO == "ESGG":
+    RUNWAYS = ['03', '21']
 
 import time
 start_time = time.time()
@@ -150,5 +154,73 @@ for runway in RUNWAYS:
     full_output_filename = os.path.join(OUTPUT_DIR, output_filename)
 
     rwy_border_points_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', index = True, header = True)
+    
+    ###############################################################################
+    # create states files
+    # might be commented out if not needed
+    
+    clusters_df_list = []
+    for cluster in range(0, number_of_clusters):
+        df = pd.DataFrame()
+        clusters_df_list.append(df)
+        
+    for year in YEARS:
+            
+        INPUT_DIR = os.path.join(DATA_DIR, str(year))
+        INPUT_DIR = os.path.join(INPUT_DIR, "osn_" + AIRPORT_ICAO + "_states_TMA_" + str(year) + "_by_runways")
+        
+        for month in MONTHS:
+    
+            for week in WEEKS:
+        
+                if week == 5 and month == '02' and not calendar.isleap(int(year)):
+                    continue
+                    
+                WEEK_INPUT_DIR = os.path.join(INPUT_DIR, "osn_" + AIRPORT_ICAO + "_states_TMA_" + str(year) + \
+                                 "_" + month + "_week" + str(week) + "_by_runways")
+            
+                filename = AIRPORT_ICAO + "_states_TMA_" + str(year) + "_" + month + "_week" + str(week) + "_rwy" + runway + ".csv"
+        
+                if DEPARTURE:
+                    filename = 'osn_departure_' + filename
+                else:
+                    filename = 'osn_arrival_' + filename
+        
+                full_filename = os.path.join(WEEK_INPUT_DIR, filename)
+        
+                states_df = pd.read_csv(full_filename, sep=' ',
+                                names = ['flightId', 'sequence', 'timestamp', 'lat', 'lon', 'rawAltitude', 'altitude', 'velocity',  'beginDate', 'endDate'],
+                                dtype={'sequence':int, 'timestamp':int, 'rawAltitude':int, 'altitude':int, 'beginDate':str, 'endDate':str})
+
+                states_df.set_index(['flightId', 'sequence'], inplace = True)
+
+                week_cluster_number_of_flights = len(states_df.groupby(level='flightId')) 
+                
+                count = 0
+
+                for flight_id, flight_df in states_df.groupby(level='flightId'):
+                    
+                    count= count + 1
+                
+                    print(runway, year, month, week, week_cluster_number_of_flights, count, flight_id)
+    
+                    flight_cluster_number_df = rwy_border_points_df[rwy_border_points_df.index.get_level_values('flightId') == flight_id]
+                    flight_cluster_number = flight_cluster_number_df['cluster'].values[0] - 1
+                    
+                    flight_df_with_index = states_df[states_df.index.get_level_values('flightId') == flight_id]
+                    clusters_df_list[flight_cluster_number] = clusters_df_list[flight_cluster_number].append(flight_df_with_index)
+
+
+    CLUSTERS_STATES_DIR = os.path.join(OUTPUT_DIR, "osn_" + AIRPORT_ICAO + "_states_TMA_rwy" + runway)
+                        
+    if not os.path.exists(CLUSTERS_STATES_DIR):
+        os.makedirs(CLUSTERS_STATES_DIR)
+    
+    for cluster in range(0, number_of_clusters):
+        output_states_filename = "osn_" + AIRPORT_ICAO + "_states_TMA_rwy" + runway + "_cluster" + str(cluster+1) + ".csv"
+        clusters_df_list[cluster].to_csv(os.path.join(CLUSTERS_STATES_DIR, output_states_filename), sep=' ', encoding='utf-8', float_format='%.3f', index = True, header = False)
+       
 
 print((time.time()-start_time)/60)
+
+
