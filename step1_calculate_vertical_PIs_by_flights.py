@@ -13,7 +13,8 @@ AIRPORT_ICAO = "ESSA"
 YEARS = ['2019', '2020']
 #YEARS = ['2020']
 
-MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+#MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+MONTHS = ['03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['02']
 
 WEEKS = [1,2,3,4,5]
@@ -31,9 +32,9 @@ if not os.path.exists(OUTPUT_DIR ):
     os.makedirs(OUTPUT_DIR )
 
 
-def get_all_states(csv_input_file):
+def get_all_states(input_filename):
 
-    df = pd.read_csv(csv_input_file, sep=' ',
+    df = pd.read_csv(input_filename, sep=' ',
                     names = ['flightId', 'sequence', 'timestamp', 'lat', 'lon', 'rawAltitude', 'altitude', 'velocity', 'beginDate', 'endDate'],
                     dtype={'flightId':str, 'sequence':int, 'timestamp':int, 'lat':float, 'lon':float, 'rawAltitude':float, 'altitude':float, 'velocity':float, 'beginDate':str, 'endDate':str})
     
@@ -78,9 +79,10 @@ def calculate_vfe(year, month, week):
     descent_end_altitude = 1800 / 3.281
     #print(descent_end_altitude)
     
-    vfe_df = pd.DataFrame(columns=['flight_id', 'date', 'hour', 'number_of_levels',
-                                   'time_on_levels', 'time_on_levels_percent',
-                                   'TMA_time', 'cdo_altitude'])
+    vfe_df = pd.DataFrame(columns=['flightId',  'beginDate', 'endDate', 
+                                   'beginHour', 'endHour', 'numberOfLevels',
+                                   'timeOnLevels', 'timeOnLevelsPercent',
+                                   'timeTMA', 'cdoAltitude'])
 
 
     
@@ -161,13 +163,15 @@ def calculate_vfe(year, month, week):
                     time_on_level = time_on_level + 1
 
 
-        date_str = states_df.loc[flight_id].head(1)['endDate'].values[0]
-
-
-        #end_timestamp = states_opensky_df.loc[flight_id]['timestamp'].values[-1].item(0)
+        begin_timestamp = states_df.loc[flight_id]['timestamp'].values[0]
+        begin_datetime = datetime.utcfromtimestamp(begin_timestamp)
+        begin_hour_str = begin_datetime.strftime('%H')
+        begin_date_str = begin_datetime.strftime('%y%m%d')
+        
         end_timestamp = states_df.loc[flight_id]['timestamp'].values[-1]
         end_datetime = datetime.utcfromtimestamp(end_timestamp)
         end_hour_str = end_datetime.strftime('%H')
+        end_date_str = end_datetime.strftime('%y%m%d')
 
         
         number_of_levels_str = str(number_of_levels)
@@ -187,12 +191,16 @@ def calculate_vfe(year, month, week):
         time_on_levels_percent_str = "{0:.1f}".format(time_on_levels_percent)
 
         
-        vfe_df = vfe_df.append({'flight_id': flight_id, 'date': date_str, 'hour': end_hour_str,
-                                'number_of_levels': number_of_levels_str,
-                                'time_on_levels': time_on_levels_str,
-                                'time_on_levels_percent': time_on_levels_percent_str,
-                                'TMA_time': TMA_time,
-                                'cdo_altitude': cdo_altitude}, ignore_index=True)
+        vfe_df = vfe_df.append({'flightId': flight_id,
+                                'beginDate': begin_date_str,
+                                'endDate': end_date_str, 
+                                'beginHour': begin_hour_str,
+                                'endHour': end_hour_str,
+                                'numberOfLevels': number_of_levels_str,
+                                'timeOnLevels': time_on_levels_str,
+                                'timeOnLevelsPercent': time_on_levels_percent_str,
+                                'timeTMA': TMA_time,
+                                'cdoAltitude': cdo_altitude}, ignore_index=True)
 
     vfe_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', header=True, index=False)
 
