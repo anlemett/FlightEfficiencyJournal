@@ -3,8 +3,8 @@ import os
 
 is_dataset = True
 
-AIRPORT_ICAO = "ESGG"
-#AIRPORT_ICAO = "ESSA"
+#AIRPORT_ICAO = "ESGG"
+AIRPORT_ICAO = "ESSA"
 
 
 REGRESSION_DIR = os.path.join("Data", "Regression")

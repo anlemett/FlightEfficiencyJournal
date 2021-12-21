@@ -48,6 +48,11 @@ features_df = features_df.drop('cin', axis=1, inplace=False)
 
 features_df['cbh'] = features_df['cbh'].fillna(2000)
 
+def inverseCbh(cbh):
+
+    return 1/cbh
+
+features_df['cbh'] = features_df.apply(lambda row: inverseCbh(row['cbh']), axis=1)
 
 # u100, v100, u10, v10, cbh, cape, cp, csf, csfr, hcc, i10fg, kx, lsf, lssfr, lcc, mcc, sf, tcc, tciw, tclw, tcrw, tcsw, tcw, tp 
 

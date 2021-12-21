@@ -1,8 +1,8 @@
 import pandas as pd
 import os
 
-AIRPORT_ICAO = "ESGG"
-#AIRPORT_ICAO = "ESSA"
+#AIRPORT_ICAO = "ESGG"
+AIRPORT_ICAO = "ESSA"
 
 
 REGRESSION_DIR = os.path.join("Data", "Regression")
