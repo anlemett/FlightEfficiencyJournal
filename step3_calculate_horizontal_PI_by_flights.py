@@ -9,11 +9,11 @@ from geopy.distance import geodesic
 import time
 start_time = time.time()
 
-#AIRPORT_ICAO = "ESGG"
+#from config import AIRPORT_ICAO
 AIRPORT_ICAO = "ESSA"
 
 #YEARS = ['2019', '2020']
-YEARS = ['2020']
+YEARS = ['2019']
 
 MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['12']
@@ -92,7 +92,8 @@ def calculate_hfe_week(year, month, week):
                                    'beginDate', 'endDate', 
                                    'beginHour', 'endHour', 
                                    'referenceDistance',
-                                   'distanceTMA', 'additionalDistanceTMA'
+                                   'distanceTMA', 'additionalDistanceTMA',
+                                   'distanceChangePercent'
                                    ])
 
     for runway in RUNWAYS:
@@ -131,7 +132,8 @@ def calculate_hfe_week_runway(runway, year, month, week):
                                    'beginDate', 'endDate', 
                                    'beginHour', 'endHour', 
                                    'referenceDistance',
-                                   'distanceTMA', 'additionalDistanceTMA'
+                                   'distanceTMA', 'additionalDistanceTMA',
+                                   'distanceChangePercent'
                                    ])
     
     number_of_flights = len(states_df.groupby(level='flightId'))
@@ -182,6 +184,9 @@ def calculate_hfe_week_runway(runway, year, month, week):
          
         add_distance = distance_sum - distance_ref
         add_distance_str = "{0:.2f}".format(add_distance)
+        
+        distance_change_percent = (add_distance / distance_ref) * 100
+        distance_change_percent_str = "{0:.2f}".format(distance_change_percent)
                
         hfe_df = hfe_df.append({'flightId': flight_id,
                                 'beginDate': begin_date_str,
@@ -190,7 +195,8 @@ def calculate_hfe_week_runway(runway, year, month, week):
                                 'endHour': end_hour_str,
                                 'referenceDistance': distance_ref,
                                 'distanceTMA': distance_str,
-                                'additionalDistanceTMA': add_distance_str
+                                'additionalDistanceTMA': add_distance_str,
+                                'distanceChangePercent': distance_change_percent_str
                                 }, ignore_index=True)
 
     return hfe_df

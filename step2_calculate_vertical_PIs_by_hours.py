@@ -3,8 +3,7 @@ import pandas as pd
 import calendar
 import os
 
-#AIRPORT_ICAO = "ESGG"
-AIRPORT_ICAO = "ESSA"
+from config import AIRPORT_ICAO
 
 YEARS = ['2019', '2020']
 #YEARS = ['2020']
@@ -33,16 +32,21 @@ def calculate_vfe_by_hour(year, month, week):
     # 'numberOfLevels', 'timeOnLevels', 'timeOnLevelsPercent', 'timeTMA', 'cdoAltitude'    
     vfe_by_flight_df = pd.read_csv(full_input_filename, sep=' ', dtype = {'endDate': str})
 
-    vfe_by_flight_df.set_index(['endDate'], inplace=True)
-
     vfe_by_hour_df = pd.DataFrame(columns=['date', 'hour', 'numberOfFlights', 'numberOfLevelFlights',
                              'percentOfLevelFlights',
                              'numberOfLevelsTotal', 'numberOfLevelsMean', 'numberOfLevelsMedian',
                              'timeOnLevelsTotal', 'timeOnLevelsMean', 'timeOnLevelsMedian',
                              'timeOnLevelsMin', 'timeOnLevelsMax',
+                             'timeOnLevelsPercentMean', 'timeOnLevelsPercentMedian',
                              'TMATimeMean', 'TMATimeMedian',
                              'cdoAltitudeMean', 'cdoAltitudeMedian'
                              ])
+    
+    p1 = vfe_by_flight_df["timeOnLevelsPercent"].quantile(0.05)
+    p2 = vfe_by_flight_df["timeOnLevelsPercent"].quantile(0.95)
+    #vfe_by_flight_df = vfe_by_flight_df.loc[(vfe_by_flight_df['timeOnLevelsPercent'] > p1) & (vfe_by_flight_df['timeOnLevelsPercent'] < p2) ]
+    
+    vfe_by_flight_df.set_index(['endDate'], inplace=True)
 
 
     for date, date_df in vfe_by_flight_df.groupby(level='endDate'):
@@ -54,7 +58,13 @@ def calculate_vfe_by_hour(year, month, week):
             hour_df = date_df[date_df['endHour'] == hour]
 
             number_of_flights_hour = len(hour_df)
-
+            
+            #remove outliers
+            #if number_of_flights_hour>0:
+            #    hour_df = hour_df.loc[(hour_df['timeOnLevelsPercent'] > p1) & (hour_df['timeOnLevelsPercent'] < p2) ]
+            #    if len(hour_df)==0:
+            #         number_of_flights_hour = 0
+            
             level_df = hour_df[hour_df['numberOfLevels']>0]
 
             number_of_level_flights_hour = len(level_df)
@@ -82,7 +92,14 @@ def calculate_vfe_by_hour(year, month, week):
             min_time_on_levels_hour = round(np.min(time_on_levels_hour), 3) if time_on_levels_hour.any() else 0
         
             max_time_on_levels_hour = round(np.max(time_on_levels_hour), 3) if time_on_levels_hour.any() else 0
+            
+            
+            time_on_levels_percent_hour = hour_df['timeOnLevelsPercent'].values # np array
         
+            average_time_on_levels_percent_hour = np.mean(time_on_levels_percent_hour) if time_on_levels_percent_hour.any() else 0
+            
+            median_time_on_levels_percent_hour = np.median(time_on_levels_percent_hour) if time_on_levels_percent_hour.any() else 0
+
         
             time_TMA_hour = hour_df['timeTMA'].values # np array
 
@@ -113,6 +130,8 @@ def calculate_vfe_by_hour(year, month, week):
                 'timeOnLevelsMean': average_time_on_levels_hour,
                 'timeOnLevelsMedian': median_time_on_levels_hour,
                 'timeOnLevelsMin': min_time_on_levels_hour, 'timeOnLevelsMax': max_time_on_levels_hour,
+                'timeOnLevelsPercentMean': average_time_on_levels_percent_hour,
+                'timeOnLevelsPercentMedian': median_time_on_levels_percent_hour,
                 'TMATimeMean': average_time_TMA_hour,
                 'TMATimeMedian': median_time_TMA_hour,
                 'cdoAltitudeMean': average_cdo_altitude_hour,
@@ -154,6 +173,8 @@ def create_vfe_by_hour_file(vfe_by_hour_df):
                                                     'timeOnLevelsMean': 0,
                                                     'timeOnLevelsMedian': 0,
                                                     'timeOnLevelsMin': 0, 'timeOnLevelsMax': 0,
+                                                    'timeOnLevelsPercentMean': 0,
+                                                    'timeOnLevelsPercentMedian': 0,
                                                     'TMATimeMean': 0,
                                                     'TMATimeMedian': 0,
                                                     'cdoAltitudeMean':0,

@@ -7,8 +7,7 @@ import calendar
 import time
 start_time = time.time()
 
-#AIRPORT_ICAO = "ESGG"
-AIRPORT_ICAO = "ESSA"
+from config import AIRPORT_ICAO
 
 YEARS = ['2019', '2020']
 #YEARS = ['2020']

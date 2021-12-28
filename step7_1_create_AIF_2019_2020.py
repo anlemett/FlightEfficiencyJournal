@@ -1,9 +1,7 @@
 import pandas as pd
 import os
 
-#AIRPORT_ICAO = "ESGG"
-AIRPORT_ICAO = "ESSA"
-
+from config import AIRPORT_ICAO
 
 REGRESSION_DIR = os.path.join("Data", "Regression")
 
@@ -21,10 +19,9 @@ def getAggregatedImpactFactor(sum, number_of_factors):
     # create 4*number_of_factors bins (step is 0.25)
     # create 2*number_of_factors bins (step is 0.5)
     
-    max_AIF = 30
+    max_AIF = 20
     factor = max_AIF/number_of_factors
     
-    #return int(2.8*sum)
     return int(factor*sum)
 
 

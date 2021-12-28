@@ -7,14 +7,12 @@ import calendar
 import time
 start_time = time.time()
 
-#AIRPORT_ICAO = "ESGG"
-AIRPORT_ICAO = "ESSA"
+from config import AIRPORT_ICAO
 
 YEARS = ['2019', '2020']
 #YEARS = ['2020']
 
-#MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-MONTHS = ['03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['02']
 
 WEEKS = [1,2,3,4,5]

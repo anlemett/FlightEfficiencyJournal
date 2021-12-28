@@ -3,9 +3,7 @@ import os
 
 is_dataset = True
 
-#AIRPORT_ICAO = "ESGG"
-AIRPORT_ICAO = "ESSA"
-
+from config import AIRPORT_ICAO
 
 REGRESSION_DIR = os.path.join("Data", "Regression")
 
@@ -29,10 +27,9 @@ def getWeatherImpactFactor(sum, number_of_factors):
     # create 4*number_of_factors bins (step is 0.25)
     # create 2*number_of_factors bins (step is 0.5)
     
-    max_AIF = 30
-    factor = max_AIF/number_of_factors
+    max_WIF = 20
+    factor = max_WIF/number_of_factors
     
-    #return int(2.8*sum)
     return int(factor*sum)
     
 # 'date', 'hour', 'gust', 'wind', 'cbh', 'lcc', 'tcc', 'cape', 'cp', 'tp', 'sf', 'numberOfFlights'

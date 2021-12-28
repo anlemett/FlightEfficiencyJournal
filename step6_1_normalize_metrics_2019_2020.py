@@ -1,8 +1,7 @@
 import pandas as pd
 import os
 
-#AIRPORT_ICAO = "ESGG"
-AIRPORT_ICAO = "ESSA"
+from config import AIRPORT_ICAO
 
 import time
 start_time = time.time()
