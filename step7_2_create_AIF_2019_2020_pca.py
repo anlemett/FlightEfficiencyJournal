@@ -31,7 +31,7 @@ metrics_df.fillna(0, inplace=True)
 
 metrics_df = metrics_df[metrics_df['numberOfFlights']>0]
 
-metrics_df['sum'] = metrics_df['numberOfFlights']*9 + metrics_df['pc1'] + metrics_df['pc2'] \
+metrics_df['sum'] = metrics_df['numberOfFlights'] + metrics_df['pc1'] + metrics_df['pc2'] \
              + metrics_df['pc3'] + metrics_df['pc4']  + metrics_df['pc5'] + metrics_df['pc6'] \
              + metrics_df['pc7']  + metrics_df['pc8'] + metrics_df['pc9']
 
