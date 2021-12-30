@@ -31,7 +31,8 @@ traffic_df = traffic_df[['date', 'hour', 'numberOfFlights']]
 WEATHER_DIR = os.path.join("Data", "Weather")
 WEATHER_DIR = os.path.join(WEATHER_DIR, AIRPORT_ICAO)
 
-weather_filename = AIRPORT_ICAO + '_principal_components_9.csv'
+#weather_filename = AIRPORT_ICAO + '_principal_components_9.csv'
+weather_filename = AIRPORT_ICAO + '_principal_components_7.csv'
 
 weather_full_filename = os.path.join(WEATHER_DIR, weather_filename)
 
@@ -41,7 +42,8 @@ weather_df.reset_index(inplace = True)
 pd.set_option('display.max_columns', None)
 #print(weather_df.head())
 
-weather_df = weather_df[['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9']]
+#weather_df = weather_df[['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9']]
+weather_df = weather_df[['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7']]
 
 metrics_df = pd.concat([weather_df, traffic_df], axis=1)
 
@@ -56,11 +58,13 @@ if not os.path.exists(REGRESSION_DIR ):
 df = metrics_df.copy()
 pd.set_option('display.max_columns', None) 
 
-features_to_normalize = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', 'numberOfFlights']
+#features_to_normalize = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', 'numberOfFlights']
+features_to_normalize = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'numberOfFlights']
 
 df[features_to_normalize] = df[features_to_normalize].apply(lambda x:(x-x.min()) / (x.max()-x.min()))
 
-df = df[['date', 'hour', 'pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', \
+#df = df[['date', 'hour', 'pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', \
+df = df[['date', 'hour', 'pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', \
          #'numberOfFlights', 'distanceChangePercentMean']]
          'numberOfFlights']]
 
@@ -87,11 +91,13 @@ print("low traffic")
 print(len(df))
 
 
-features_to_normalize = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9']
+#features_to_normalize = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9']
+features_to_normalize = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7']
 
 df[features_to_normalize] = df[features_to_normalize].apply(lambda x:(x-x.min()) / (x.max()-x.min()))
 
-df = df[['date', 'hour', 'pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', 'numberOfFlights']]
+#df = df[['date', 'hour', 'pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', 'numberOfFlights']]
+df = df[['date', 'hour', 'pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'numberOfFlights']]
 
 df = df[df['numberOfFlights']>0]
 

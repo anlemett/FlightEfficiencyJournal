@@ -6,7 +6,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 
-AIRPORT_ICAO = "ESGG"
+from config import AIRPORT_ICAO
+
+#AIRPORT_ICAO = "ESGG"
 #AIRPORT_ICAO = "ESSA"
 
 import time
@@ -48,45 +50,36 @@ hours = weather_df
 features_df = weather_df.drop('month', axis=1, inplace=False)
 features_df = features_df.drop('day', axis=1, inplace=False)
 features_df = features_df.drop('hour', axis=1, inplace=False)
-features_df = features_df.drop('wind10', axis=1, inplace=False)
-features_df = features_df.drop('wind100', axis=1, inplace=False)
+#features_df = features_df.drop('wind10', axis=1, inplace=False)
+#features_df = features_df.drop('wind100', axis=1, inplace=False)
 #print(features_df['cin'].isnull().sum())
 features_df = features_df.drop('cin', axis=1, inplace=False)
 
-#features_df = features_df.drop('csf', axis=1, inplace=False)
-#features_df = features_df.drop('csfr', axis=1, inplace=False)
-#features_df = features_df.drop('lsf', axis=1, inplace=False)
-#features_df = features_df.drop('lssfr', axis=1, inplace=False)
-#features_df = features_df.drop('tciw', axis=1, inplace=False)
-#features_df = features_df.drop('tclw', axis=1, inplace=False)
-#features_df = features_df.drop('tcrw', axis=1, inplace=False)
-#features_df = features_df.drop('tcsw', axis=1, inplace=False)
-#features_df = features_df.drop('tcw', axis=1, inplace=False)
+features_df = features_df.drop('u100', axis=1, inplace=False)
+features_df = features_df.drop('v100', axis=1, inplace=False)
+features_df = features_df.drop('u10', axis=1, inplace=False)
+features_df = features_df.drop('v10', axis=1, inplace=False)
 
-#features_df = features_df.drop('u100', axis=1, inplace=False)
-#features_df = features_df.drop('v100', axis=1, inplace=False)
-#features_df = features_df.drop('u10', axis=1, inplace=False)
-#features_df = features_df.drop('v10', axis=1, inplace=False)
-#features_df = features_df.drop('cp', axis=1, inplace=False)
-#features_df = features_df.drop('hcc', axis=1, inplace=False)
-#features_df = features_df.drop('kx', axis=1, inplace=False)
-#features_df = features_df.drop('mcc', axis=1, inplace=False)
-#features_df = features_df.drop('tcc', axis=1, inplace=False)
-#features_df = features_df.drop('tp', axis=1, inplace=False)
+#print(features_df.isnull().sum().sum())
+#print(features_df['cbh'].isnull().sum().sum())
+#print(features_df['cin'].isnull().sum().sum())
 
-print(features_df.isnull().sum().sum())
+#temp_df = features_df['cin'].dropna()
+#print(temp_df)
+
+#while features_df['cin'].isnull().sum().sum()>0:
+#    features_df['cin'] = features_df['cin'].fillna(features_df['cin'].rolling(window=2, min_periods=1).mean())
 
 #features_df['cbh'] = features_df['cbh'].fillna(features_df['cbh'].rolling(window=2, min_periods=1).mean())
 #temp_df = features_df[['cbh']]
 while features_df['cbh'].isnull().sum().sum()>0:
     features_df['cbh'] = features_df['cbh'].fillna(features_df['cbh'].rolling(window=2, min_periods=1).mean())
 #features_df['cbh'] = features_df['cbh'].fillna(features_df['cbh'].rolling(window=37, min_periods=1).mean())
+
 #full_filename = os.path.join(DATA_DIR, 'temp.csv')
 #temp_df.to_csv(full_filename, sep=' ', encoding='utf-8', float_format='%.12f', header=True, index=False)
 
 #features_df = features_df.drop('cbh', axis=1, inplace=False)
-
-# u100, v100, u10, v10, cbh, cape, cp, csf, csfr, hcc, i10fg, kx, lsf, lssfr, lcc, mcc, sf, tcc, tciw, tclw, tcrw, tcsw, tcw, tp 
 
 #print(features_df.isnull().sum().sum())
 
@@ -104,19 +97,16 @@ data = features_df.loc[:, features].values
 # Normalizzing the features
 data_rescaled = MinMaxScaler().fit_transform(data)
 
-print(data_rescaled)
-data_rescaled[:,4 ] = 1 - data_rescaled[:,4 ] # cbh
+#print(data_rescaled)
+data_rescaled[:,0] = 1 - data_rescaled[:,0] # cbh
 
 #95% of variance
 
-#number_of_components = 6
-#pca = PCA(n_components=number_of_components)
-#principal_components = pca.fit_transform(x)
 pca = PCA(n_components = 0.95)
 pca.fit(data_rescaled)
 principal_components = pca.transform(data_rescaled)
 
-print(principal_components.shape) # 9 components
+#print(principal_components.shape) # 9 components
 number_of_components = principal_components.shape[1]
 print(number_of_components)
 
@@ -149,9 +139,8 @@ plt.show()
 
 
 principal_df = pd.DataFrame(data = principal_components,
-            columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9'])
-            #columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7'])
-            #columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6'])
+            #columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9'])
+            columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7'])
 
 principal_df['month'] = weather_df['month'].values
 principal_df['day'] = weather_df['day'].values
