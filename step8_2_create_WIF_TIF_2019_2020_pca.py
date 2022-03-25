@@ -35,8 +35,11 @@ def getWeatherImpactFactor(metrics_sum, min_sum, max_sum):
 metrics_low_traffic_df['sum'] = metrics_low_traffic_df['pc1']  \
              + metrics_low_traffic_df['pc2'] + metrics_low_traffic_df['pc3'] \
              + metrics_low_traffic_df['pc4'] + metrics_low_traffic_df['pc5'] \
-             + metrics_low_traffic_df['pc6'] + metrics_low_traffic_df['pc7'] \
-             #+ metrics_low_traffic_df['pc8'] + metrics_low_traffic_df['pc9']
+             + metrics_low_traffic_df['pc6'] + metrics_low_traffic_df ['pc7'] #\
+             #+ metrics_low_traffic_df['pc8'] + metrics_low_traffic_df['pc9'] \
+             #+ metrics_low_traffic_df['pc10'] + metrics_low_traffic_df['pc11'] \
+             #+ metrics_low_traffic_df['pc12'] #+ metrics_low_traffic_df['pc13'] #\
+             #+ metrics_low_traffic_df['pc14'] + metrics_low_traffic_df['pc15'] \
 
 min_sum = min(metrics_low_traffic_df['sum'])
 max_sum = max(metrics_low_traffic_df['sum'])
@@ -62,7 +65,7 @@ def getTrafficImpactFactor(num, min_num, max_num):
 
     step = (max_num - min_num)/max_TIF
     
-    TIF = int((num - min_num) / step) + 1 if num!=max_num else max_TIF
+    TIF = int(((num - min_num)*10) / (step*10)) + 1 if num!=max_num else max_TIF
     
     return TIF
 

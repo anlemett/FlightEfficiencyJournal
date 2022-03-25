@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 
 from config import AIRPORT_ICAO
 
-#AIRPORT_ICAO = "ESGG"
+AIRPORT_ICAO = "ESGG"
 #AIRPORT_ICAO = "ESSA"
 
 import time
@@ -45,7 +45,7 @@ pd.set_option('display.max_columns', None)
 
 months = weather_df['month']
 days = weather_df['day']
-hours = weather_df
+hours = weather_df['hour']
 
 features_df = weather_df.drop('month', axis=1, inplace=False)
 features_df = features_df.drop('day', axis=1, inplace=False)
@@ -91,14 +91,14 @@ data = features_df.loc[:, features].values
 
 #print(np.isnan(np.sum(data)))
 
-# Standardizing the features
-# x = StandardScaler().fit_transform(data)
-
-# Normalizzing the features
+# Normalizing the features
 data_rescaled = MinMaxScaler().fit_transform(data)
 
 #print(data_rescaled)
 data_rescaled[:,0] = 1 - data_rescaled[:,0] # cbh
+
+# Standardizing the features
+#data_rescaled = StandardScaler().fit_transform(data_rescaled)
 
 #95% of variance
 
@@ -106,7 +106,7 @@ pca = PCA(n_components = 0.95)
 pca.fit(data_rescaled)
 principal_components = pca.transform(data_rescaled)
 
-#print(principal_components.shape) # 9 components
+#print(principal_components.shape) # 7 components
 number_of_components = principal_components.shape[1]
 print(number_of_components)
 
@@ -139,7 +139,7 @@ plt.show()
 
 
 principal_df = pd.DataFrame(data = principal_components,
-            #columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9'])
+            #columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7', 'pc8', 'pc9', 'pc10', 'pc11', 'pc12'])
             columns = ['pc1', 'pc2', 'pc3', 'pc4', 'pc5', 'pc6', 'pc7'])
 
 principal_df['month'] = weather_df['month'].values

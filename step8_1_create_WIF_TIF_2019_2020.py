@@ -52,9 +52,15 @@ metrics_low_traffic_df.to_csv(full_filename, sep=' ', float_format='%.6f', encod
 
 # TIF from good weather days
 
-def getTrafficImpactFactor(traffic_intensity):
+def getTrafficImpactFactor(num):
 
-    return int(10*traffic_intensity)
+    max_TIF = 10
+
+    step = 1/max_TIF
+    
+    TIF = int((num*10) / (step*10)) + 1 if num!=1 else max_TIF
+    
+    return TIF
 
 
 

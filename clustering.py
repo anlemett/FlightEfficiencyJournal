@@ -12,11 +12,11 @@ DEPARTURE = False
 AIRPORT_ICAO = "ESGG"
 number_of_clusters = 6
 
-YEARS = ['2019', '2020']
-#YEARS = ['2020']
+#YEARS = ['2019', '2020']
+YEARS = ['2019']
 
-MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-#MONTHS = ['02']
+#MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+MONTHS = ['10']
 
 WEEKS = [1,2,3,4,5]
 #WEEKS = [1]
@@ -180,7 +180,7 @@ for runway in RUNWAYS:
                                  "_" + month + "_week" + str(week) + "_by_runways")
             
                 filename = AIRPORT_ICAO + "_states_TMA_" + str(year) + "_" + month + "_week" + str(week) + "_rwy" + runway + ".csv"
-        
+                
                 if DEPARTURE:
                     filename = 'osn_departure_' + filename
                 else:

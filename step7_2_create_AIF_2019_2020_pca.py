@@ -33,8 +33,9 @@ metrics_df = metrics_df[metrics_df['numberOfFlights']>0]
 
 metrics_df['sum'] = metrics_df['numberOfFlights'] + metrics_df['pc1'] + metrics_df['pc2'] \
              + metrics_df['pc3'] + metrics_df['pc4']  + metrics_df['pc5'] + metrics_df['pc6'] \
-             + metrics_df['pc7']
-             #+ metrics_df['pc7']  + metrics_df['pc8'] + metrics_df['pc9']
+             + metrics_df['pc7'] #+ metrics_df['pc8'] #+ metrics_df['pc9'] #\
+             #+ metrics_df['pc10'] + metrics_df['pc11'] #+ metrics_df['pc12'] \
+             #+ metrics_df['pc13'] + metrics_df['pc14'] + metrics_df['pc15']
 
 
 min_sum = min(metrics_df['sum'])
