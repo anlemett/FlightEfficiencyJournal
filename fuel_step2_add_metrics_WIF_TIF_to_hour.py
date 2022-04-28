@@ -19,7 +19,8 @@ PIs_by_hour_df = pd.read_csv(full_filename, sep=' ')
 
 PIs_by_hour_df = PIs_by_hour_df[['date', 'hour',
                              'numberOfFlights',
-                             'addFuelMean', 'addFuelMedian'
+                             'addFuelMean', 'addFuelMedian',
+                             'addFuelPercentMean', 'addFuelPercentMedian'
                              ]]
 
     

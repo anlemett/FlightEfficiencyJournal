@@ -24,9 +24,11 @@ def getWeatherImpactFactor(metrics_sum, min_sum, max_sum):
 
     max_WIF = 10
     
-    step = (max_sum - min_sum)/max_WIF
+    range = max_sum - min_sum
     
-    WIF = int((metrics_sum - min_sum) / step) + 1 if metrics_sum!=max_sum else max_WIF
+    step = (range*10)/(max_WIF*10)
+    
+    WIF = int((metrics_sum - min_sum) *10 / (step*10)) + 1 if metrics_sum!=max_sum else max_WIF
     
     return WIF
     
@@ -40,6 +42,12 @@ metrics_low_traffic_df['sum'] = metrics_low_traffic_df['pc1']  \
              #+ metrics_low_traffic_df['pc10'] + metrics_low_traffic_df['pc11'] \
              #+ metrics_low_traffic_df['pc12'] #+ metrics_low_traffic_df['pc13'] #\
              #+ metrics_low_traffic_df['pc14'] + metrics_low_traffic_df['pc15'] \
+
+metrics_low_traffic_df.sort_values(by=['sum'], inplace=True)
+number_of_rows = len(metrics_low_traffic_df)
+n = int(number_of_rows * 0.05) # 5% of hours to drop
+
+metrics_low_traffic_df.drop(metrics_low_traffic_df.tail(n).index, inplace = True)
 
 min_sum = min(metrics_low_traffic_df['sum'])
 max_sum = max(metrics_low_traffic_df['sum'])
@@ -62,8 +70,10 @@ metrics_low_traffic_df.to_csv(full_filename, sep=' ', float_format='%.6f', encod
 def getTrafficImpactFactor(num, min_num, max_num):
 
     max_TIF = 10
-
-    step = (max_num - min_num)/max_TIF
+    
+    range = max_num - min_num
+    
+    step = (range*10)/(max_TIF*10)
     
     TIF = int(((num - min_num)*10) / (step*10)) + 1 if num!=max_num else max_TIF
     
@@ -73,6 +83,13 @@ def getTrafficImpactFactor(num, min_num, max_num):
 # 'date', 'hour', 'numberOfFlights'
 #print(metrics_good_weather_df)
 metrics_good_weather_df.dropna(inplace=True)
+
+metrics_good_weather_df.sort_values(by=['numberOfFlights'], inplace=True)
+number_of_rows = len(metrics_good_weather_df)
+n = int(number_of_rows * 0.05) # 5% of hours to drop
+
+metrics_good_weather_df.drop(metrics_good_weather_df.tail(n).index, inplace = True)
+
 
 min_number_of_flights = min(metrics_good_weather_df['numberOfFlights'])
 print(min_number_of_flights)

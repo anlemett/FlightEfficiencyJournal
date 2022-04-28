@@ -36,6 +36,11 @@ def getAdditionalFuel(OS_fuel, CDO_fuel):
     return OS_fuel - CDO_fuel
 
 
+def getAdditionalFuelPercent(add_fuel, CDO_fuel):
+       
+    return int(add_fuel / CDO_fuel *100)
+
+
 def get_fuel_by_flight_df():
     
     if RT1:
@@ -87,6 +92,8 @@ def calculate_fuel_by_hour():
     fuel_by_flight_df['addFuel'] = fuel_by_flight_df.apply(lambda row: getAdditionalFuel(\
         row['OS_fuel'], row['CDO_fuel']), axis=1)
     
+    fuel_by_flight_df['addFuelPercent'] = fuel_by_flight_df.apply(lambda row: getAdditionalFuelPercent(\
+        row['addFuel'], row['CDO_fuel']), axis=1)
     
     fuel_by_flight_df.set_index(['endDate'], inplace=True)
     
@@ -94,14 +101,14 @@ def calculate_fuel_by_hour():
     
     
     fuel_by_hour_df = pd.DataFrame(columns=['date', 'hour', 'numberOfFlights', 
-                             'addFuelMean', 'addFuelMedian'
+                             'addFuelMean', 'addFuelMedian', 'addFuelPercentMean', 'addFuelPercentMedian'
                              ])
     
     
     
     for date, date_df in fuel_by_flight_df.groupby(level='endDate'):
     
-        print(date)
+        print(AIRPORT_ICAO, date)
     
         for hour in range(0,24):
                        
@@ -112,22 +119,30 @@ def calculate_fuel_by_hour():
             
             add_fuel_hour = hour_df['addFuel'].values # np array
             
+            add_fuel_percent_hour = hour_df['addFuelPercent'].values # np array
+            
             if add_fuel_hour.size == 0:
                 #print("size 0")
                 number_of_flights_hour = 0
                 average_add_fuel_hour = 0
                 median_add_fuel_hour = 0
+                average_add_fuel_percent_hour = 0
+                median_add_fuel_percent_hour = 0
                 
             else:
                 #print("size not 0")
                 average_add_fuel_hour = np.mean(add_fuel_hour)
                 median_add_fuel_hour = np.median(add_fuel_hour)
+                average_add_fuel_percent_hour = np.mean(add_fuel_percent_hour)
+                median_add_fuel_percent_hour = np.median(add_fuel_percent_hour)
                 
                 
             fuel_by_hour_df = fuel_by_hour_df.append({'date': date, 'hour': hour,
                 'numberOfFlights': number_of_flights_hour,                         
                 'addFuelMean': average_add_fuel_hour,
-                'addFuelMedian': median_add_fuel_hour
+                'addFuelMedian': median_add_fuel_hour,
+                'addFuelPercentMean': average_add_fuel_percent_hour,
+                'addFuelPercentMedian': median_add_fuel_percent_hour,
                 }, ignore_index=True)
 
     return fuel_by_hour_df
@@ -168,7 +183,9 @@ def create_fuel_by_hour_file(fuel_by_hour_df):
                 fuel_by_hour_df = fuel_by_hour_df.append({'date': d, 'hour': hour,
                                                         'numberOfFlights': 0,
                                                         'addFuelMean': 0,
-                                                        'addFuelMedian': 0
+                                                        'addFuelMedian': 0,
+                                                        'addFuelPercentMean': 0,
+                                                        'addFuelPercentMedian': 0,
                                                     }, ignore_index=True)
 
     fuel_by_hour_df = fuel_by_hour_df.sort_values(by = ['date', 'hour'] )
