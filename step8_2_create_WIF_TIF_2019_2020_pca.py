@@ -47,7 +47,7 @@ metrics_low_traffic_df.sort_values(by=['sum'], inplace=True)
 number_of_rows = len(metrics_low_traffic_df)
 n = int(number_of_rows * 0.05) # 5% of hours to drop
 
-metrics_low_traffic_df.drop(metrics_low_traffic_df.tail(n).index, inplace = True)
+#metrics_low_traffic_df.drop(metrics_low_traffic_df.tail(n).index, inplace = True)
 
 min_sum = min(metrics_low_traffic_df['sum'])
 max_sum = max(metrics_low_traffic_df['sum'])
@@ -88,7 +88,7 @@ metrics_good_weather_df.sort_values(by=['numberOfFlights'], inplace=True)
 number_of_rows = len(metrics_good_weather_df)
 n = int(number_of_rows * 0.05) # 5% of hours to drop
 
-metrics_good_weather_df.drop(metrics_good_weather_df.tail(n).index, inplace = True)
+#metrics_good_weather_df.drop(metrics_good_weather_df.tail(n).index, inplace = True)
 
 
 min_number_of_flights = min(metrics_good_weather_df['numberOfFlights'])
