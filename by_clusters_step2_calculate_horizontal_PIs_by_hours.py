@@ -5,8 +5,8 @@ import os
 
 from config import AIRPORT_ICAO
 
-YEARS = ['2019', '2020']
-#YEARS = ['2020']
+#YEARS = ['2019', '2020']
+YEARS = ['2019']
 
 MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['02']
@@ -38,12 +38,13 @@ def calculate_hfe_by_hour(year, month, week, cluster, runway):
     hfe_by_flight_df = pd.read_csv(full_input_filename, sep=' ', dtype = {'endDate': str})
 
     hfe_by_hour_df = pd.DataFrame(columns=['date', 'hour', 'numberOfFlights', 
-                            'additionalDistanceMean', 'additionalDistanceMedian'
+                            'additionalDistanceMean', 'additionalDistanceMedian',
+                            'distanceChangePercentMean'
                             ])
 
-    p1 = hfe_by_flight_df["additionalDistanceTMA"].quantile(0.05)
-    p2 = hfe_by_flight_df["additionalDistanceTMA"].quantile(0.95)
-    hfe_by_flight_df = hfe_by_flight_df.loc[(hfe_by_flight_df['additionalDistanceTMA'] > p1) & (hfe_by_flight_df['additionalDistanceTMA'] < p2) ]
+    #p1 = hfe_by_flight_df["additionalDistanceTMA"].quantile(0.05)
+    #p2 = hfe_by_flight_df["additionalDistanceTMA"].quantile(0.95)
+    #hfe_by_flight_df = hfe_by_flight_df.loc[(hfe_by_flight_df['additionalDistanceTMA'] > p1) & (hfe_by_flight_df['additionalDistanceTMA'] < p2) ]
     
     hfe_by_flight_df.set_index(['endDate'], inplace=True)
     
@@ -55,8 +56,6 @@ def calculate_hfe_by_hour(year, month, week, cluster, runway):
         
             hour_df = date_df[date_df['endHour'] == hour]
 
-            number_of_flights_hour = len(hour_df)
-       
             #print(additional_distance_hour)
             
             hour_df.set_index(['flightId'], inplace=True)
@@ -74,19 +73,29 @@ def calculate_hfe_by_hour(year, month, week, cluster, runway):
                     runway_cluster_hour_df = runway_cluster_hour_df.append(flight_df)
                 
             #print(runway_cluster_hour_df)
+            number_of_flights_hour = len(runway_cluster_hour_df)
             
-            if runway_cluster_hour_df.empty:
-                continue
+            if number_of_flights_hour == 0:
+                average_additional_distance_hour = 0
+                median_additional_distance_hour = 0
+                average_distance_change_percent_hour = 0
+                
+            else:
             
-            additional_distance_hour = runway_cluster_hour_df['additionalDistanceTMA'].values # np array
+                additional_distance_hour = runway_cluster_hour_df['additionalDistanceTMA'].values # np array
           
-            average_additional_distance_hour = np.mean(additional_distance_hour) if additional_distance_hour.any() else 0
-            median_additional_distance_hour = np.median(additional_distance_hour) if additional_distance_hour.any() else 0
+                average_additional_distance_hour = np.mean(additional_distance_hour) if additional_distance_hour.any() else 0
+                median_additional_distance_hour = np.median(additional_distance_hour) if additional_distance_hour.any() else 0
+                
+                distance_change_percent_hour = hour_df['distanceChangePercent'].values # np array
+                
+                average_distance_change_percent_hour = np.mean(distance_change_percent_hour)
   
             hfe_by_hour_df = hfe_by_hour_df.append({'date': date, 'hour': hour,
                 'numberOfFlights': number_of_flights_hour,
                 'additionalDistanceMean': average_additional_distance_hour,
-                'additionalDistanceMedian': median_additional_distance_hour
+                'additionalDistanceMedian': median_additional_distance_hour,
+                'distanceChangePercentMean': average_distance_change_percent_hour
                 }, ignore_index=True)
 
     return hfe_by_hour_df
@@ -118,13 +127,14 @@ def create_hfe_by_hour_file(hfe_by_hour_df, cluster, runway):
                 hfe_by_hour_df = hfe_by_hour_df.append({'date': d, 'hour': hour,
                                                         'numberOfFlights': 0,
                                                         'additionalDistanceMean': 0,
-                                                        'additionalDistanceMedian': 0
+                                                        'additionalDistanceMedian': 0,
+                                                        'distanceChangePercentMean':0
                                                     }, ignore_index=True)
 
     hfe_by_hour_df = hfe_by_hour_df.sort_values(by = ['date', 'hour'] )
     hfe_by_hour_df.reset_index(drop=True, inplace=True)
 
-    output_filename = "PIs_horizontal_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
+    output_filename = AIRPORT_ICAO + "PIs_horizontal_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_output_filename = os.path.join(DATA_DIR, output_filename)
     hfe_by_hour_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', header=True, index=False)
 

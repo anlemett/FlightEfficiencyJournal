@@ -9,8 +9,8 @@ start_time = time.time()
 
 from config import AIRPORT_ICAO
 
-YEARS = ['2019', '2020']
-#YEARS = ['2020']
+#YEARS = ['2019', '2020']
+YEARS = ['2019']
 
 MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['02']
@@ -21,6 +21,7 @@ WEEKS = [1,2,3,4,5]
 INPUT_DIR = os.path.join("..", "Opensky")
 INPUT_DIR = os.path.join(INPUT_DIR, "Data")
 INPUT_DIR = os.path.join(INPUT_DIR, AIRPORT_ICAO)
+INPUT_DIR = os.path.join(INPUT_DIR, "TMA")
 
 OUTPUT_DIR = os.path.join("Data", "PIs")
 if not os.path.exists(OUTPUT_DIR ):

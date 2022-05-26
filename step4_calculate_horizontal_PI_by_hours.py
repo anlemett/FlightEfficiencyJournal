@@ -60,15 +60,13 @@ def calculate_hfe_by_hour(year, month, week):
             #    if len(hour_df)==0:
             #         number_of_flights_hour = 0
             
-            additional_distance_hour = hour_df['additionalDistanceTMA'].values # np array
-            
-            if additional_distance_hour.size == 0:
-                number_of_flights_hour = 0
+            if number_of_flights_hour == 0:
                 average_additional_distance_hour = 0
                 median_additional_distance_hour = 0
                 average_distance_change_percent_hour = 0
                 
             else:
+                additional_distance_hour = hour_df['additionalDistanceTMA'].values # np array
             
                 average_additional_distance_hour = np.mean(additional_distance_hour)
                 median_additional_distance_hour = np.median(additional_distance_hour)

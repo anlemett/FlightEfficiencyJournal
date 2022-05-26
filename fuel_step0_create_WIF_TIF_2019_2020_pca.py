@@ -45,7 +45,7 @@ data_trans = discretizer.fit_transform(data)
 metrics_low_traffic_df['WIF'] = data_trans
 metrics_low_traffic_df['WIF'] = metrics_low_traffic_df['WIF'] + 1
 
-filename = AIRPORT_ICAO + "_metrics_WIF_2019_2020.csv"
+filename = AIRPORT_ICAO + "_metrics_WIF_2019_2020_fuel.csv"
 full_filename = os.path.join(REGRESSION_DIR, filename)
 
 #print(metrics_low_traffic_df.head(1))
@@ -73,7 +73,7 @@ metrics_good_weather_df['TIF'] = data_trans
 metrics_good_weather_df['TIF'] = metrics_good_weather_df['TIF'] + 1
 
 
-filename = AIRPORT_ICAO + "_metrics_TIF_2019_2020.csv"
+filename = AIRPORT_ICAO + "_metrics_TIF_2019_2020_fuel.csv"
 full_filename = os.path.join(REGRESSION_DIR, filename)
 
 metrics_good_weather_df.to_csv(full_filename, sep=' ', float_format='%.6f', encoding='utf-8')

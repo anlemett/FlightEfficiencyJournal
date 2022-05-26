@@ -6,17 +6,17 @@ from sklearn.cluster import KMeans
 
 DEPARTURE = False
 
-#AIRPORT_ICAO = "ESSA"
-#number_of_clusters = 6
-
-AIRPORT_ICAO = "ESGG"
+AIRPORT_ICAO = "ESSA"
 number_of_clusters = 6
+
+#AIRPORT_ICAO = "ESGG"
+#number_of_clusters = 6
 
 #YEARS = ['2019', '2020']
 YEARS = ['2019']
 
-#MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-MONTHS = ['10']
+MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+#MONTHS = ['10']
 
 WEEKS = [1,2,3,4,5]
 #WEEKS = [1]
@@ -32,6 +32,7 @@ start_time = time.time()
 DATA_DIR = os.path.join("..", "Opensky")
 DATA_DIR = os.path.join(DATA_DIR, "Data")
 DATA_DIR = os.path.join(DATA_DIR, AIRPORT_ICAO)
+DATA_DIR = os.path.join(DATA_DIR, "TMA")
 
 
 # dataframes are mutable, so changes made in the funtion will be applied to the original object

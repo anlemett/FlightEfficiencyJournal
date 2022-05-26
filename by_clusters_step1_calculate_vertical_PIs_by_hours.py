@@ -5,8 +5,8 @@ import os
 
 from config import AIRPORT_ICAO
 
-YEARS = ['2019', '2020']
-#YEARS = ['2020']
+#YEARS = ['2019', '2020']
+YEARS = ['2019']
 
 MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['02']
@@ -20,8 +20,14 @@ start_time = time.time()
 DATA_DIR = os.path.join("Data", "PIs")
 DATA_DIR = os.path.join(DATA_DIR, AIRPORT_ICAO)
 
+CLUSTER_DIR = os.path.join("Data", "Clustering")
+filename = "osn_arrival_" + AIRPORT_ICAO + "_TMA_runways_clusters.csv"
+full_filename = os.path.join(CLUSTER_DIR, filename)
+clusters_runways_df = pd.read_csv(full_filename, sep=' ')
+clusters_runways_df.set_index(['flightId'], inplace=True)
 
-def calculate_vfe_by_hour(year, month, week):
+
+def calculate_vfe_by_hour(year, month, week, cluster, runway):
     
     PIs_DIR = os.path.join(DATA_DIR, year)
 
@@ -42,12 +48,11 @@ def calculate_vfe_by_hour(year, month, week):
                              'cdoAltitudeMean', 'cdoAltitudeMedian'
                              ])
     
-    p1 = vfe_by_flight_df["timeOnLevelsPercent"].quantile(0.05)
-    p2 = vfe_by_flight_df["timeOnLevelsPercent"].quantile(0.95)
+    #p1 = vfe_by_flight_df["timeOnLevelsPercent"].quantile(0.05)
+    #p2 = vfe_by_flight_df["timeOnLevelsPercent"].quantile(0.95)
     #vfe_by_flight_df = vfe_by_flight_df.loc[(vfe_by_flight_df['timeOnLevelsPercent'] > p1) & (vfe_by_flight_df['timeOnLevelsPercent'] < p2) ]
     
     vfe_by_flight_df.set_index(['endDate'], inplace=True)
-
 
     for date, date_df in vfe_by_flight_df.groupby(level='endDate'):
     
@@ -56,15 +61,31 @@ def calculate_vfe_by_hour(year, month, week):
         for hour in range(0,24):
         
             hour_df = date_df[date_df['endHour'] == hour]
-
-            number_of_flights_hour = len(hour_df)
             
             #remove outliers
             #if number_of_flights_hour>0:
             #    hour_df = hour_df.loc[(hour_df['timeOnLevelsPercent'] > p1) & (hour_df['timeOnLevelsPercent'] < p2) ]
             #    if len(hour_df)==0:
             #         number_of_flights_hour = 0
-
+            
+            hour_df.set_index(['flightId'], inplace=True)
+            
+            runway_cluster_hour_df = pd.DataFrame()
+            
+            for flight_id, group in hour_df.groupby(level='flightId'):
+                
+                # get flight cluster and runway
+                c = clusters_runways_df.loc[flight_id]["cluster"]
+                r = clusters_runways_df.loc[flight_id]["runway"]
+                
+                if int(c)==cluster and str(r) == runway:
+                    flight_df = hour_df[hour_df.index.get_level_values('flightId') == flight_id]
+                    runway_cluster_hour_df = runway_cluster_hour_df.append(flight_df)
+                
+            print(runway_cluster_hour_df)
+                      
+            number_of_flights_hour = len(runway_cluster_hour_df)
+            
             if number_of_flights_hour == 0:
                 number_of_level_flights_hour = 0
                 percent_of_level_flights_hour = 0
@@ -84,15 +105,13 @@ def calculate_vfe_by_hour(year, month, week):
                 median_cdo_altitude_hour = 0
                 
             else:
-            
-                level_df = hour_df[hour_df['numberOfLevels']>0]
-
-                number_of_level_flights_hour = len(level_df)
+                level_df = runway_cluster_hour_df[runway_cluster_hour_df['numberOfLevels']>0]
+                number_of_level_flights_hour = len(level_df)        
         
                 percent_of_level_flights_hour = number_of_level_flights_hour/number_of_flights_hour
         
 
-                number_of_levels_hour = hour_df['numberOfLevels'].values # np array
+                number_of_levels_hour = runway_cluster_hour_df['numberOfLevels'].values # np array
 
                 total_number_of_levels_hour = np.sum(number_of_levels_hour)
 
@@ -100,8 +119,7 @@ def calculate_vfe_by_hour(year, month, week):
         
                 median_number_of_levels_hour = np.median(number_of_levels_hour)
         
-
-                time_on_levels_hour = hour_df['timeOnLevels'].values # np array
+                time_on_levels_hour = runway_cluster_hour_df['timeOnLevels'].values # np array
         
                 total_time_on_levels_hour = round(np.sum(time_on_levels_hour), 3)
         
@@ -114,14 +132,13 @@ def calculate_vfe_by_hour(year, month, week):
                 max_time_on_levels_hour = round(np.max(time_on_levels_hour), 3)
             
             
-                time_on_levels_percent_hour = hour_df['timeOnLevelsPercent'].values # np array
+                time_on_levels_percent_hour = runway_cluster_hour_df['timeOnLevelsPercent'].values # np array
         
                 average_time_on_levels_percent_hour = np.mean(time_on_levels_percent_hour)
             
                 median_time_on_levels_percent_hour = np.median(time_on_levels_percent_hour)
 
-        
-                time_TMA_hour = hour_df['timeTMA'].values # np array
+                time_TMA_hour = runway_cluster_hour_df['timeTMA'].values # np array
 
                 time_TMA_hour_sum = np.sum(time_TMA_hour)
 
@@ -130,7 +147,7 @@ def calculate_vfe_by_hour(year, month, week):
                 median_time_TMA_hour = np.median(time_TMA_hour)
 
 
-                cdo_altitude_hour = hour_df['cdoAltitude'].values # np array
+                cdo_altitude_hour = runway_cluster_hour_df['cdoAltitude'].values # np array
         
                 total_cdo_altitude_hour = round(np.sum(cdo_altitude_hour), 3)
         
@@ -160,7 +177,7 @@ def calculate_vfe_by_hour(year, month, week):
             
     return vfe_by_hour_df
 
-def create_vfe_by_hour_file(vfe_by_hour_df):
+def create_vfe_by_hour_file(vfe_by_hour_df, cluster, runway):
     # not all dates in opensky states, creating empty rows for missing dates
     (nrows, ncol) = vfe_by_hour_df.shape
 
@@ -204,13 +221,12 @@ def create_vfe_by_hour_file(vfe_by_hour_df):
     vfe_by_hour_df = vfe_by_hour_df.sort_values(by = ['date', 'hour'] )
     vfe_by_hour_df.reset_index(drop=True, inplace=True)
 
-    output_filename = "PIs_vertical_by_hour.csv"
+    output_filename = AIRPORT_ICAO + "PIs_vertical_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_output_filename = os.path.join(DATA_DIR, output_filename)
     vfe_by_hour_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', header=True, index=False)
 
 
-
-def main():
+def get_cluster_runway_hfe(cluster, runway):
     
     vfe_by_hour_df = pd.DataFrame()
     
@@ -223,11 +239,23 @@ def main():
                 if week == 5 and month == '02' and not calendar.isleap(int(year)):
                     continue
             
-                vfe_by_hour_df_week = calculate_vfe_by_hour(year, month, week)
+                vfe_by_hour_df_week = calculate_vfe_by_hour(year, month, week, cluster, runway)
                 
                 vfe_by_hour_df = vfe_by_hour_df.append(vfe_by_hour_df_week, ignore_index=True)
     
-    create_vfe_by_hour_file(vfe_by_hour_df)
+    create_vfe_by_hour_file(vfe_by_hour_df, cluster, runway)
+
+if AIRPORT_ICAO == "ESSA":
+    RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
+elif AIRPORT_ICAO == "ESGG":
+    RUNWAYS = ['03', '21']
+
+CLUSTERS = [1,2,3,4,5,6]
+
+def main():
+    for runway in RUNWAYS:
+        for cluster in CLUSTERS:
+            get_cluster_runway_hfe(cluster, runway)
     
 main()    
 

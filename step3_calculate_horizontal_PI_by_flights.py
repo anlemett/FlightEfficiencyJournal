@@ -31,6 +31,7 @@ number_of_clusters = 6
 INPUT_DIR = os.path.join("..", "Opensky")
 INPUT_DIR = os.path.join(INPUT_DIR, "Data")
 INPUT_DIR = os.path.join(INPUT_DIR, AIRPORT_ICAO)
+INPUT_DIR = os.path.join(INPUT_DIR, "TMA")
 
 CLUSTERS_DIR = os.path.join("Data", "Clustering")
 
