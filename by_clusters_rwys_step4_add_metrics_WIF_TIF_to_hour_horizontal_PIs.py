@@ -9,9 +9,9 @@ PIs_DIR = os.path.join(PIs_DIR, AIRPORT_ICAO)
 import time
 start_time = time.time()
 
-def create_metrics_WIF_TIF_horizontal_PIs_file(cluster):
+def create_metrics_WIF_TIF_horizontal_PIs_file(cluster, runway):
  
-    filename = AIRPORT_ICAO + "_PIs_horizontal_by_hour_cluster" + str(cluster) + ".csv"
+    filename = AIRPORT_ICAO + "_PIs_horizontal_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_filename = os.path.join(PIs_DIR, filename)
     PIs_by_hour_df = pd.read_csv(full_filename, sep=' ')
 
@@ -44,7 +44,7 @@ def create_metrics_WIF_TIF_horizontal_PIs_file(cluster):
     #pd.set_option('display.max_columns', None) 
     #print(df.head())
 
-    filename = AIRPORT_ICAO + "_metrics_WIF_horizontal_PIs_by_hour_cluster" + str(cluster) + ".csv"
+    filename = AIRPORT_ICAO + "_metrics_WIF_horizontal_PIs_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_filename = os.path.join(REGRESSION_DIR, filename)
 
     df.to_csv(full_filename, sep=' ', float_format='%.6f', encoding='utf-8', index = False)
@@ -57,17 +57,23 @@ def create_metrics_WIF_TIF_horizontal_PIs_file(cluster):
     #pd.set_option('display.max_columns', None) 
     #print(df.head())
 
-    filename = AIRPORT_ICAO + "_metrics_TIF_horizontal_PIs_by_hour_cluster" + str(cluster) + ".csv"
+    filename = AIRPORT_ICAO + "_metrics_TIF_horizontal_PIs_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_filename = os.path.join(REGRESSION_DIR, filename)
 
     df.to_csv(full_filename, sep=' ', float_format='%.6f', encoding='utf-8', index = False)
 
 
+if AIRPORT_ICAO == "ESSA":
+    RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
+elif AIRPORT_ICAO == "ESGG":
+    RUNWAYS = ['03', '21']
+
 CLUSTERS = [1,2,3,4,5,6]
 
 def main():
-    for cluster in CLUSTERS:
-        create_metrics_WIF_TIF_horizontal_PIs_file(cluster)
+    for runway in RUNWAYS:
+        for cluster in CLUSTERS:
+            create_metrics_WIF_TIF_horizontal_PIs_file(cluster, runway)
     
 main()    
 

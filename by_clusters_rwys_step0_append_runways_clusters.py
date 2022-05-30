@@ -35,6 +35,9 @@ for runway in RUNWAYS:
     
 all_flights_df = all_flights_df[['flightId', 'cluster', 'runway']]
 
+# only for the year 2019 
+all_flights_df = all_flights_df[all_flights_df['flightId']<'20']
+
 output_filename = "osn_arrival_" + AIRPORT_ICAO + "_TMA_runways_clusters.csv"
 full_output_filename = os.path.join(CLUSTER_DIR, output_filename)
 all_flights_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', index = False, header = True)

@@ -8,9 +8,9 @@ DATA_DIR = os.path.join("Data", "Fuel")
 import time
 start_time = time.time()
 
-def create_metrics_WIF_TIF_fuel_file(cluster):
+def create_metrics_WIF_TIF_fuel_file(cluster, runway):
  
-    filename = AIRPORT_ICAO + "_fuel_by_hour_RT2_cluster" + str(cluster) + ".csv"
+    filename = AIRPORT_ICAO + "_fuel_by_hour_RT2_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_filename = os.path.join(DATA_DIR, filename)
     fuel_by_hour_df = pd.read_csv(full_filename, sep=' ')
 
@@ -45,7 +45,7 @@ def create_metrics_WIF_TIF_fuel_file(cluster):
     #pd.set_option('display.max_columns', None) 
     #print(df.head())
 
-    filename = AIRPORT_ICAO + "_metrics_WIF_fuel_by_hour_cluster" + str(cluster) + ".csv"
+    filename = AIRPORT_ICAO + "_metrics_WIF_fuel_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_filename = os.path.join(REGRESSION_DIR, filename)
 
     df.to_csv(full_filename, sep=' ', float_format='%.6f', encoding='utf-8', index = False)
@@ -58,18 +58,23 @@ def create_metrics_WIF_TIF_fuel_file(cluster):
     #pd.set_option('display.max_columns', None) 
     #print(df.head())
 
-    filename = AIRPORT_ICAO + "_metrics_TIF_fuel_by_hour_cluster" + str(cluster) + ".csv"
+    filename = AIRPORT_ICAO + "_metrics_TIF_fuel_by_hour_rwy" + runway + "_cluster" + str(cluster) + ".csv"
     full_filename = os.path.join(REGRESSION_DIR, filename)
 
     df.to_csv(full_filename, sep=' ', float_format='%.6f', encoding='utf-8', index = False)
 
 
+if AIRPORT_ICAO == "ESSA":
+    RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
+elif AIRPORT_ICAO == "ESGG":
+    RUNWAYS = ['03', '21']
 
 CLUSTERS = [1,2,3,4,5,6]
 
 def main():
-    for cluster in CLUSTERS:
-        create_metrics_WIF_TIF_fuel_file(cluster)
+    for runway in RUNWAYS:
+        for cluster in CLUSTERS:
+            create_metrics_WIF_TIF_fuel_file(cluster, runway)
     
 main()    
 

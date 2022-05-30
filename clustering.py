@@ -12,8 +12,8 @@ number_of_clusters = 6
 #AIRPORT_ICAO = "ESGG"
 #number_of_clusters = 6
 
-#YEARS = ['2019', '2020']
-YEARS = ['2019']
+YEARS = ['2019', '2020']
+#YEARS = ['2019']
 
 MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['10']
