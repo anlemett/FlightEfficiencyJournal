@@ -5,8 +5,8 @@ import os
 
 from config import AIRPORT_ICAO
 
-YEARS = ['2019', '2020']
-#YEARS = ['2020']
+#YEARS = ['2019', '2020']
+YEARS = ['2019']
 
 MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 #MONTHS = ['02']
@@ -204,7 +204,8 @@ def create_vfe_by_hour_file(vfe_by_hour_df):
     vfe_by_hour_df = vfe_by_hour_df.sort_values(by = ['date', 'hour'] )
     vfe_by_hour_df.reset_index(drop=True, inplace=True)
 
-    output_filename = "PIs_vertical_by_hour.csv"
+    #output_filename = "PIs_vertical_by_hour.csv"
+    output_filename = "PIs_vertical_by_hour_2019.csv"
     full_output_filename = os.path.join(DATA_DIR, output_filename)
     vfe_by_hour_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', header=True, index=False)
 

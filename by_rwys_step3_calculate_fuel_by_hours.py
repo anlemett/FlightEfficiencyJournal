@@ -79,7 +79,7 @@ def get_fuel_by_flight_df():
     return fuel_by_flight_df
 
 
-def calculate_fuel_by_hour(cluster):
+def calculate_fuel_by_hour(runway):
     
     fuel_by_flight_df = get_fuel_by_flight_df()
       
@@ -117,21 +117,19 @@ def calculate_fuel_by_hour(cluster):
             
             hour_df.set_index(['flightId'], inplace=True)
             
-            runway_cluster_hour_df = pd.DataFrame()
+            runway_hour_df = pd.DataFrame()
             
             for flight_id, group in hour_df.groupby(level='flightId'):
                 
-                # get flight cluster and runway
-                c = clusters_runways_df.loc[flight_id]["cluster"]
-                #r = clusters_runways_df.loc[flight_id]["runway"]
+                # get flight runway
+                r = clusters_runways_df.loc[flight_id]["runway"]
                 
-                #if int(c)==cluster and str(r) == runway:
-                if int(c)==cluster:
+                if str(r) == runway:
                     flight_df = hour_df[hour_df.index.get_level_values('flightId') == flight_id]
-                    runway_cluster_hour_df = runway_cluster_hour_df.append(flight_df)
+                    runway_hour_df = runway_hour_df.append(flight_df)
                 
             #print(runway_cluster_hour_df)
-            number_of_flights_hour = len(runway_cluster_hour_df)
+            number_of_flights_hour = len(runway_hour_df)
             
             if number_of_flights_hour == 0:
             
@@ -141,9 +139,9 @@ def calculate_fuel_by_hour(cluster):
                 median_add_fuel_percent_hour = 0
             
             else:
-                add_fuel_hour = runway_cluster_hour_df['addFuel'].values # np array
+                add_fuel_hour = runway_hour_df['addFuel'].values # np array
             
-                add_fuel_percent_hour = runway_cluster_hour_df['addFuelPercent'].values # np array
+                add_fuel_percent_hour = runway_hour_df['addFuelPercent'].values # np array
             
                 average_add_fuel_hour = np.mean(add_fuel_hour)
                 median_add_fuel_hour = np.median(add_fuel_hour)
@@ -162,7 +160,7 @@ def calculate_fuel_by_hour(cluster):
     return fuel_by_hour_df
 
 
-def create_fuel_by_hour_file(fuel_by_hour_df, cluster):
+def create_fuel_by_hour_file(fuel_by_hour_df, runway):
     # not all dates in opensky states, creating empty rows for missing dates
     (nrows, ncol) = fuel_by_hour_df.shape
 
@@ -206,29 +204,32 @@ def create_fuel_by_hour_file(fuel_by_hour_df, cluster):
     fuel_by_hour_df.reset_index(drop=True, inplace=True)
 
     if RT1:    
-        output_filename = AIRPORT_ICAO + "_fuel_by_hour_RT1_cluster" + str(cluster) + ".csv"
+        output_filename = AIRPORT_ICAO + "_fuel_by_hour_RT1_runway" + runway + ".csv"
     else:
-        output_filename = AIRPORT_ICAO + "_fuel_by_hour_RT2_cluster" + str(cluster) + ".csv"
+        output_filename = AIRPORT_ICAO + "_fuel_by_hour_RT2_runway" + runway + ".csv"
 
     full_output_filename = os.path.join(DATA_DIR, output_filename)
     fuel_by_hour_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', header=True, index=False)
 
     
-def get_cluster_runway_fuel(cluster):
+def get_runway_fuel(runway):
     
     fuel_by_hour_df = pd.DataFrame()
     
-    fuel_by_hour_df = calculate_fuel_by_hour(cluster)
+    fuel_by_hour_df = calculate_fuel_by_hour(runway)
 
-    create_fuel_by_hour_file(fuel_by_hour_df, cluster)
+    create_fuel_by_hour_file(fuel_by_hour_df, runway)
 
 
+if AIRPORT_ICAO == "ESSA":
+    RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
+elif AIRPORT_ICAO == "ESGG":
+    RUNWAYS = ['03', '21']
 
-CLUSTERS = [1,2,3,4,5,6]
 
 def main():
-    for cluster in CLUSTERS:
-        get_cluster_runway_fuel(cluster)
+    for runway in RUNWAYS:
+        get_runway_fuel(runway)
 
 main()    
 

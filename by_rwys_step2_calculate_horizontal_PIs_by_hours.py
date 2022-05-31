@@ -26,7 +26,7 @@ full_filename = os.path.join(CLUSTER_DIR, filename)
 clusters_runways_df = pd.read_csv(full_filename, sep=' ')
 clusters_runways_df.set_index(['flightId'], inplace=True)
 
-def calculate_hfe_by_hour(year, month, week, cluster):
+def calculate_hfe_by_hour(year, month, week, runway):
     
     PIs_DIR = os.path.join(DATA_DIR, year)
 
@@ -60,21 +60,19 @@ def calculate_hfe_by_hour(year, month, week, cluster):
             
             hour_df.set_index(['flightId'], inplace=True)
             
-            runway_cluster_hour_df = pd.DataFrame()
+            runway_hour_df = pd.DataFrame()
             
             for flight_id, group in hour_df.groupby(level='flightId'):
                 
-                # get flight cluster and runway
-                c = clusters_runways_df.loc[flight_id]["cluster"]
-                #r = clusters_runways_df.loc[flight_i]["runway"]
+                # get flight runway
+                r = clusters_runways_df.loc[flight_id]["runway"]
                 
-                #if int(c)==cluster and str(r) == runway:
-                if int(c)==cluster:
+                if str(r) == runway:
                     flight_df = hour_df[hour_df.index.get_level_values('flightId') == flight_id]
-                    runway_cluster_hour_df = runway_cluster_hour_df.append(flight_df)
+                    runway_hour_df = runway_hour_df.append(flight_df)
                 
             #print(runway_cluster_hour_df)
-            number_of_flights_hour = len(runway_cluster_hour_df)
+            number_of_flights_hour = len(runway_hour_df)
             
             if number_of_flights_hour == 0:
                 average_additional_distance_hour = 0
@@ -83,12 +81,12 @@ def calculate_hfe_by_hour(year, month, week, cluster):
                 
             else:
             
-                additional_distance_hour = runway_cluster_hour_df['additionalDistanceTMA'].values # np array
+                additional_distance_hour = runway_hour_df['additionalDistanceTMA'].values # np array
           
                 average_additional_distance_hour = np.mean(additional_distance_hour) if additional_distance_hour.any() else 0
                 median_additional_distance_hour = np.median(additional_distance_hour) if additional_distance_hour.any() else 0
                 
-                distance_change_percent_hour = runway_cluster_hour_df['distanceChangePercent'].values # np array
+                distance_change_percent_hour = runway_hour_df['distanceChangePercent'].values # np array
                 
                 average_distance_change_percent_hour = np.mean(distance_change_percent_hour)
   
@@ -102,7 +100,7 @@ def calculate_hfe_by_hour(year, month, week, cluster):
     return hfe_by_hour_df
 
 
-def create_hfe_by_hour_file(hfe_by_hour_df, cluster):
+def create_hfe_by_hour_file(hfe_by_hour_df, runway):
     # not all dates in opensky states, creating empty rows for missing dates
     (nrows, ncol) = hfe_by_hour_df.shape
 
@@ -135,12 +133,12 @@ def create_hfe_by_hour_file(hfe_by_hour_df, cluster):
     hfe_by_hour_df = hfe_by_hour_df.sort_values(by = ['date', 'hour'] )
     hfe_by_hour_df.reset_index(drop=True, inplace=True)
 
-    output_filename = AIRPORT_ICAO + "_PIs_horizontal_by_hour_cluster" + str(cluster) + ".csv"
+    output_filename = AIRPORT_ICAO + "_PIs_horizontal_by_hour_runway" + runway + ".csv"
     full_output_filename = os.path.join(DATA_DIR, output_filename)
     hfe_by_hour_df.to_csv(full_output_filename, sep=' ', encoding='utf-8', float_format='%.3f', header=True, index=False)
 
 
-def get_cluster_runway_hfe(cluster):
+def get_runway_hfe(runway):
     
     hfe_by_hour_df = pd.DataFrame()
     
@@ -153,18 +151,21 @@ def get_cluster_runway_hfe(cluster):
                 if week == 5 and month == '02' and not calendar.isleap(int(year)):
                     continue
             
-                hfe_by_hour_df_week = calculate_hfe_by_hour(year, month, week, cluster)
+                hfe_by_hour_df_week = calculate_hfe_by_hour(year, month, week, runway)
                 
                 hfe_by_hour_df = hfe_by_hour_df.append(hfe_by_hour_df_week, ignore_index=True)
     
-    create_hfe_by_hour_file(hfe_by_hour_df, cluster)
+    create_hfe_by_hour_file(hfe_by_hour_df, runway)
 
 
-CLUSTERS = [1,2,3,4,5,6]
+if AIRPORT_ICAO == "ESSA":
+    RUNWAYS = ['08', '01L', '01R', '26', '19R', '19L']
+elif AIRPORT_ICAO == "ESGG":
+    RUNWAYS = ['03', '21']
 
 def main():
-    for cluster in CLUSTERS:
-        get_cluster_runway_hfe(cluster)
+    for runway in RUNWAYS:
+        get_runway_hfe(runway)
     
 main()    
 
