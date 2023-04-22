@@ -10,10 +10,10 @@ start_time = time.time()
 from config import AIRPORT_ICAO
 
 #YEARS = ['2019', '2020']
-YEARS = ['2019']
+YEARS = ['2020']
 
-MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
-#MONTHS = ['02']
+#MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+MONTHS = ['01', '02', '03', '04', '05', '06']
 
 WEEKS = [1,2,3,4,5]
 #WEEKS = [1]
@@ -81,6 +81,7 @@ def calculate_vfe(year, month, week):
     vfe_df = pd.DataFrame(columns=['flightId',  'beginDate', 'endDate', 
                                    'beginHour', 'endHour', 'numberOfLevels',
                                    'timeOnLevels', 'timeOnLevelsPercent',
+                                   'maxTimeOnLevel',
                                    'timeTMA', 'cdoAltitude'])
 
 
@@ -101,6 +102,7 @@ def calculate_vfe(year, month, week):
 
         time_on_levels = 0
         time_on_level = 0
+        max_time_on_level = 0
 
         level = 'false'
         altitude1 = 0 # altitude at the beginning of rolling window
@@ -151,6 +153,8 @@ def calculate_vfe(year, month, week):
                         number_of_levels = number_of_levels + 1
                     level = 'false'
                     time_on_levels = time_on_levels + time_on_level
+                    if time_on_level > max_time_on_level:
+                        max_time_on_level = time_on_level
                     time_on_level = 0
                     
                     cdo_altitude = altitude1
@@ -180,6 +184,8 @@ def calculate_vfe(year, month, week):
         time_on_levels = time_on_levels / 60    #seconds to minutes
 
         time_on_levels_str = "{0:.3f}".format(time_on_levels)
+        
+        max_time_on_level_str = str(max_time_on_level)
        
         
         TMA_time = len(flight_df)/60  #seconds to minutes
@@ -198,6 +204,7 @@ def calculate_vfe(year, month, week):
                                 'numberOfLevels': number_of_levels_str,
                                 'timeOnLevels': time_on_levels_str,
                                 'timeOnLevelsPercent': time_on_levels_percent_str,
+                                'maxTimeOnLevel': max_time_on_level_str,
                                 'timeTMA': TMA_time,
                                 'cdoAltitude': cdo_altitude}, ignore_index=True)
 

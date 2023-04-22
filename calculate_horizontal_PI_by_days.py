@@ -6,8 +6,9 @@ import os
 from config import AIRPORT_ICAO
 
 YEARS = ['2019', '2020']
+#YEARS = ['2019']
 
-MONTHS = ['03', '04', '05', '06', '07']
+MONTHS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
 
 WEEKS = [1,2,3,4,5]
 
